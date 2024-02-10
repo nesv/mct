@@ -1,3 +1,3 @@
-module git.sr.ht/~nesv/mct
+module github.com/nesv/mct
 
 go 1.21.6
