@@ -24,12 +24,18 @@ func main() {
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, ' ', 0)
 	defer tw.Flush()
 	for _, cmd := range cmds {
-		fmt.Fprintln(tw, strings.Join([]string{
+		parts := []string{
 			fmt.Sprintf("%8s", cmd.Name),
-			fmt.Sprintf("%v", cmd.Args),
-			"&&",
-			cmd.Action.String(),
-		}, "\t"))
+			strings.Join(cmd.Args, " "),
+		}
+		if !cmd.Action.IsZero() {
+			parts = append(parts,
+				"&&",
+				cmd.Action.Name,
+				strings.Join(cmd.Action.Args, " "),
+			)
+		}
+		fmt.Fprintln(tw, strings.Join(parts, "\t"))
 	}
 }
 
@@ -131,14 +137,21 @@ func (c *Command) UnmarshalText(p []byte) error {
 }
 
 // MarshalText returns a textual representation of c that is parseable with
-// c.UnmarshalText.
+// [Command.UnmarshalText].
 func (c Command) MarshalText() ([]byte, error) {
 	return []byte(c.String()), nil
 }
 
 // String returns a string representation of c.
 func (c Command) String() string {
-	return fmt.Sprintf("%8s\t+%v\t&& %s", c.Name, c.Args, c.Action)
+	parts := []string{
+		c.Name,
+		strings.Join(c.Args, " "),
+	}
+	if !c.Action.IsZero() {
+		parts = append(parts, "&&", c.Action.String())
+	}
+	return strings.Join(parts, " ")
 }
 
 type Action struct {
@@ -147,7 +160,17 @@ type Action struct {
 }
 
 func (a Action) String() string {
-	return fmt.Sprintf("%8s\t%+v", a.Name, a.Args)
+	if a.IsZero() {
+		return ""
+	}
+	return strings.Join([]string{
+		a.Name,
+		strings.Join(a.Args, " "),
+	}, " ")
+}
+
+func (a Action) IsZero() bool {
+	return a.Name == "" && len(a.Args) == 0
 }
 
 func (a Action) Equals(other Action) bool {
