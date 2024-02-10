@@ -1,0 +1,8 @@
+REM file blah generated the following lines
+ADDPKG coredns                            && NOP
+COPY   Corefile /etc/coredns/Corefile     && SYSCTL restart-or-reload coredns
+CHOWN  coredns /etc/coredns/Corefile      && SYSCTL restart-or-reload coredns
+CHGRP  coredns /etc/coredns/Corefile      && SYSCTL restart-or-reload coredns
+COPY   db.example /etc/coredns/db.example && SYSCTL restart-or-reload coredns
+CHOWN  coredns /etc/coredns/db.example    && SYSCTL restart-or-reload coredns
+CHGRP  coredns /etc/coredns/db.example    && SYSCTL restart-or-reload coredns
